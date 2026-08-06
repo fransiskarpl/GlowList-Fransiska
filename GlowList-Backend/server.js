@@ -181,6 +181,12 @@ app.post('/pengguna', async (req, res) => {
 
         db.query(sql, [nama, email, hashedPassword, no_hp], (err, result) => {
             if (err) {
+                if (err.code === 'ER_DUP_ENTRY') {
+                    return res.status(400).json({
+                        message: 'Email sudah terdaftar, gunakan email lain',
+                    });
+                }
+                
                 return res.status(500).json({
                     error: err.sqlMessage,
                 });
