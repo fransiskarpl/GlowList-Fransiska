@@ -81,6 +81,22 @@ app.post('/produk', (req, res) => {
   );
 });
 
+app.get("/produk/:id_produk", (req, res) => {
+    const { id_produk } = req.params;
+
+    const sql = "SELECT * FROM produk WHERE id_produk = ?";
+
+    db.query(sql, [id_produk], (err, results) => {
+        if (err) {
+            return res.status(500).json({
+                error: err,
+            });
+        }
+
+        res.json(results);
+    });
+});
+
 app.put("/produk/:id_produk", (req, res) => {
     const { id_produk } = req.params;
     const { judul, deskripsi, harga, id_kategori } = req.body;
