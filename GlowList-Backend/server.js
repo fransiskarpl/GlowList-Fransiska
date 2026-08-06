@@ -107,6 +107,12 @@ app.put("/produk/:id_produk", (req, res) => {
                 });
             }
 
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    message: "Produk tidak ditemukan",
+                });
+            }
+
             res.json({
                 message: "Produk berhasil diupdate!",
             });
@@ -123,6 +129,12 @@ app.delete("/produk/:id_produk", (req, res) => {
         if (err) {
             return res.status(500).json({
                 error: err.sqlMessage,
+            });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                message: "Produk tidak ditemukan",
             });
         }
 
