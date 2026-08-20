@@ -8,8 +8,8 @@ export default function AddProduk() {
     harga: "",
     id_kategori: "",
   });
-
   const [file, setFile] = useState(null);
+
   const [kategori, setKategori] = useState([]);
   const navigate = useNavigate();
 
@@ -17,9 +17,7 @@ export default function AddProduk() {
     fetch("http://localhost:5000/kategori")
       .then((res) => res.json())
       .then((data) => setKategori(data))
-      .catch((err) =>
-        console.error("Gagal mengambil data kategori:", err)
-      );
+      .catch((err) => console.error("Gagal mengambil data kategori:", err));
   }, []);
 
   const handleChange = (e) => {
@@ -32,6 +30,9 @@ export default function AddProduk() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log("Tombol Simpan ditekan");
+    console.log("File:", file);
+
     // Validasi ukuran file maksimal 2MB
     if (file && file.size > 2 * 1024 * 1024) {
       alert("Ukuran file terlalu besar, maksimal 2MB");
@@ -39,6 +40,7 @@ export default function AddProduk() {
     }
 
     const data = new FormData();
+
     data.append("judul", formData.judul);
     data.append("deskripsi", formData.deskripsi);
     data.append("harga", formData.harga);
@@ -47,6 +49,8 @@ export default function AddProduk() {
     if (file) {
       data.append("foto", file);
     }
+
+    console.log("Data siap dikirim");
 
     try {
       const res = await fetch("http://localhost:5000/produk", {
@@ -57,16 +61,31 @@ export default function AddProduk() {
         body: data,
       });
 
-      if (res.ok) {
-        alert("Produk berhasil ditambahkan!");
-        navigate("/produk");
-      } else {
+      console.log("Status:", res.status);
+
+      const contentType = res.headers.get("content-type");
+
+      if (contentType && contentType.includes("application/json")) {
         const result = await res.json();
-        alert(result.message || "Gagal menambah produk");
+
+        console.log("Response:", result);
+
+        if (res.ok) {
+          alert("Produk berhasil ditambahkan!");
+          navigate("/produk");
+        } else {
+          alert(result.message || "Gagal menambah produk");
+        }
+      } else {
+        const errorText = await res.text();
+
+        console.error("Response server:", errorText);
+
+        alert("Terjadi error pada server. Cek terminal backend.");
       }
     } catch (err) {
       console.error("Error:", err);
-      alert("Terjadi kesalahan saat menambah produk");
+      alert("Tidak dapat terhubung ke server");
     }
   };
 
@@ -75,6 +94,7 @@ export default function AddProduk() {
       <h2 className="mb-3">Tambah Produk ✨</h2>
 
       <form onSubmit={handleSubmit} className="card p-4 shadow-sm">
+
         <div className="mb-3">
           <label className="form-label">Judul Produk</label>
           <input
@@ -100,6 +120,7 @@ export default function AddProduk() {
           ></textarea>
         </div>
 
+        {/* Harga */}
         <div className="mb-3">
           <label className="form-label">Harga</label>
           <input
@@ -125,7 +146,10 @@ export default function AddProduk() {
             <option value="">-- Pilih Kategori --</option>
 
             {kategori.map((item) => (
-              <option key={item.id_kategori} value={item.id_kategori}>
+              <option
+                key={item.id_kategori}
+                value={item.id_kategori}
+              >
                 {item.kategori}
               </option>
             ))}
@@ -134,12 +158,7 @@ export default function AddProduk() {
 
         <div className="mb-3">
           <label className="form-label">Foto Produk</label>
-          <input
-            type="file"
-            accept="image/*"
-            className="form-control"
-            onChange={(e) => setFile(e.target.files[0])}
-          />
+          <input type="file" accept="image/*" className="form-control" onChange={(e) => setFile(e.target.files[0])} />
         </div>
 
         <button type="submit" className="btn btn-success">
