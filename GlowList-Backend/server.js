@@ -7,6 +7,25 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const authJWT = require('./middleware');
+const path = require('path');
+const multer = require('multer');
+
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+
+  filename: (req, file, cb) => {
+    const uniqueSuffix =
+      Date.now() + '-' + Math.round(Math.random() * 1e9);
+
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  },
+});
+
+const upload = multer({ storage });
 
 app.use(cors());
 app.use(express.json());
@@ -96,8 +115,9 @@ app.get('/produk', (req, res) => {
     });
 });
 
-app.post('/produk', (req, res) => {
+app.post('/produk', upload.single('file'), (req, res) => {
   const { judul, deskripsi, harga, id_kategori } = req.body;
+  const nama_file = req.file ? req.file.filename : null;
 
   if (!judul || !harga) {
       return res.status(400).json({
@@ -113,13 +133,13 @@ app.post('/produk', (req, res) => {
 
   const sql = `
     INSERT INTO produk
-    (judul, deskripsi, harga, id_kategori, tgl_input)
-    VALUES (?, ?, ?, ?, NOW())
+    (judul, deskripsi, harga, id_kategori, nama_file, tgl_input)
+    VALUES (?, ?, ?, ?, ?, NOW())
   `;
 
   db.query(
     sql,
-    [judul, deskripsi, harga, id_kategori],
+    [judul, deskripsi, harga, id_kategori, nama_file],
     (err, result) => {
       if (err) {
         return res.status(500).json({
@@ -285,4 +305,3 @@ app.post('/pengguna', async (req, res) => {
 app.listen(PORT, () => {
     console.log('Server GlowList jalan di http://localhost:${PORT}');
 });
-
