@@ -8,6 +8,7 @@ export default function AddProduk() {
     harga: "",
     id_kategori: "",
   });
+const [file, setFile] = useState(null);
 
   const [kategori, setKategori] = useState([]);
   const navigate = useNavigate();
@@ -29,13 +30,20 @@ export default function AddProduk() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const data = new FormData();
+    data.append("judul", formData.judul);
+    data.append("deskripsi", formData.deskripsi);
+    data.append("harga", formData.harga);
+    data.append("id_kategori", formData.id_kategori);
+    data.append("file", file);
+
     try {
       const res = await fetch("http://localhost:5000/produk", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(formData),
+        body: data,
       });
 
       if (res.ok) {
@@ -56,6 +64,7 @@ export default function AddProduk() {
       <h2 className="mb-3">Tambah Produk ✨</h2>
 
       <form onSubmit={handleSubmit} className="card p-4 shadow-sm">
+        
         <div className="mb-3">
           <label className="form-label">Judul Produk</label>
           <input
@@ -115,6 +124,11 @@ export default function AddProduk() {
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Foto Produk</label>
+          <input type="file" accept="image/*" className="form-control" onChange={(e) => setFile(e.target.files[0])} />
         </div>
 
         <button type="submit" className="btn btn-success">

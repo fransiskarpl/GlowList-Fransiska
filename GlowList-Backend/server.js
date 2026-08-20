@@ -171,9 +171,10 @@ app.get("/produk/:id_produk", authJWT, (req, res) => {
     });
 });
 
-app.put("/produk/:id_produk", authJWT, (req, res) => {
+app.put("/produk/:id_produk", upload.single('file'), authJWT, (req, res) => {
     const { id_produk } = req.params;
     const { judul, deskripsi, harga, id_kategori } = req.body;
+    const nama_file = req.file ? req.file.filename : null;
 
     if (!judul || !harga) {
         return res.status(400).json({
@@ -183,13 +184,13 @@ app.put("/produk/:id_produk", authJWT, (req, res) => {
 
     const sql = `
         UPDATE produk
-        SET judul = ?, deskripsi = ?, harga = ?, id_kategori = ?
+        SET judul = ?, deskripsi = ?, harga = ?, nama_file = ?, id_kategori = ?
         WHERE id_produk = ?
     `;
 
     db.query(
         sql,
-        [judul, deskripsi, harga, id_kategori, id_produk],
+        [judul, deskripsi, harga, id_kategori, nama_file, id_produk],
         (err, result) => {
             if (err) {
                 return res.status(500).json({
