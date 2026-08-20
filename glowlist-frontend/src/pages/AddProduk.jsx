@@ -8,8 +8,8 @@ export default function AddProduk() {
     harga: "",
     id_kategori: "",
   });
-const [file, setFile] = useState(null);
 
+  const [file, setFile] = useState(null);
   const [kategori, setKategori] = useState([]);
   const navigate = useNavigate();
 
@@ -17,7 +17,9 @@ const [file, setFile] = useState(null);
     fetch("http://localhost:5000/kategori")
       .then((res) => res.json())
       .then((data) => setKategori(data))
-      .catch((err) => console.error("Gagal mengambil data kategori:", err));
+      .catch((err) =>
+        console.error("Gagal mengambil data kategori:", err)
+      );
   }, []);
 
   const handleChange = (e) => {
@@ -30,12 +32,21 @@ const [file, setFile] = useState(null);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validasi ukuran file maksimal 2MB
+    if (file && file.size > 2 * 1024 * 1024) {
+      alert("Ukuran file terlalu besar, maksimal 2MB");
+      return;
+    }
+
     const data = new FormData();
     data.append("judul", formData.judul);
     data.append("deskripsi", formData.deskripsi);
     data.append("harga", formData.harga);
     data.append("id_kategori", formData.id_kategori);
-    data.append("file", file);
+
+    if (file) {
+      data.append("foto", file);
+    }
 
     try {
       const res = await fetch("http://localhost:5000/produk", {
@@ -50,8 +61,8 @@ const [file, setFile] = useState(null);
         alert("Produk berhasil ditambahkan!");
         navigate("/produk");
       } else {
-        const data = await res.json();
-        alert(data.message || "Gagal menambah produk");
+        const result = await res.json();
+        alert(result.message || "Gagal menambah produk");
       }
     } catch (err) {
       console.error("Error:", err);
@@ -64,7 +75,6 @@ const [file, setFile] = useState(null);
       <h2 className="mb-3">Tambah Produk ✨</h2>
 
       <form onSubmit={handleSubmit} className="card p-4 shadow-sm">
-        
         <div className="mb-3">
           <label className="form-label">Judul Produk</label>
           <input
@@ -90,7 +100,6 @@ const [file, setFile] = useState(null);
           ></textarea>
         </div>
 
-        {/* Harga */}
         <div className="mb-3">
           <label className="form-label">Harga</label>
           <input
@@ -116,10 +125,7 @@ const [file, setFile] = useState(null);
             <option value="">-- Pilih Kategori --</option>
 
             {kategori.map((item) => (
-              <option
-                key={item.id_kategori}
-                value={item.id_kategori}
-              >
+              <option key={item.id_kategori} value={item.id_kategori}>
                 {item.kategori}
               </option>
             ))}
@@ -128,7 +134,12 @@ const [file, setFile] = useState(null);
 
         <div className="mb-3">
           <label className="form-label">Foto Produk</label>
-          <input type="file" accept="image/*" className="form-control" onChange={(e) => setFile(e.target.files[0])} />
+          <input
+            type="file"
+            accept="image/*"
+            className="form-control"
+            onChange={(e) => setFile(e.target.files[0])}
+          />
         </div>
 
         <button type="submit" className="btn btn-success">
