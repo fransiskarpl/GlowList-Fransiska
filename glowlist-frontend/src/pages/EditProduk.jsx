@@ -15,14 +15,40 @@ export default function EditProduk() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`http://localhost:5000/produk/${id}`)
-            .then((res) => res.json())
-            .then((data) => {
-                setFormData(data[0]); // Ambil data pertama hasil query
+        const fetchProduk = async () => {
+            try {
+                const response = await fetch(
+                    `http://localhost:5000/produk/${id}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        },
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`Gagal mengambil data: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (!data || data.length === 0) {
+                    throw new Error("Produk tidak ditemukan");
+                }
+
+                setFormData(data[0]);
+            } catch (error) {
+                console.error(error);
+                alert(error.message);
+                navigate("/produk");
+            } finally {
                 setLoading(false);
-            })
-            .catch((err) => console.error(err));
-    }, [id]);
+            }
+        };
+
+        fetchProduk();
+    }, [id, navigate]);
 
     const handleChange = (e) => {
         setFormData({
@@ -33,25 +59,41 @@ export default function EditProduk() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         const confirmUpdate = window.confirm(
-           "Yakin mau menyimpan perubahan ini?"
+            "Yakin mau menyimpan perubahan ini?"
         );
 
         if (!confirmUpdate) {
             return;
         }
 
-        await fetch(`http://localhost:5000/produk/${id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-        });
+        try {
+            const response = await fetch(
+                `http://localhost:5000/produk/${id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                    body: JSON.stringify(formData),
+                }
+            );
 
-        alert("Produk berhasil diperbarui!");
-        navigate("/produk");
-    }; 
+            if (!response.ok) {
+                throw new Error(
+                    `Gagal memperbarui produk: ${response.status}`
+                );
+            }
+
+            alert("Produk berhasil diperbarui!");
+            navigate("/produk");
+        } catch (error) {
+            console.error(error);
+            alert(error.message);
+        }
+    };
 
     if (loading) {
         return <div className="container mt-4">Loading...</div>;

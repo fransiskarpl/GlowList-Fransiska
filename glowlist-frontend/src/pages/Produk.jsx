@@ -28,6 +28,9 @@ export default function Produk() {
         try {
             const res = await fetch(`http://localhost:5000/produk/${id}`, {
                 method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
             });
             if (res.ok) {
                 alert("Produk berhasil dihapus");
@@ -65,7 +68,8 @@ const handleEdit = (id) => {
             <th>Judul</th>
             <th>Deskripsi</th>
             <th>Harga</th>
-            <th>Edit/Delete</th>
+            <th>Edit</th>
+            <th>Delete</th>
           </tr>
         </thead>
 
@@ -83,7 +87,8 @@ const handleEdit = (id) => {
                     onClick={() => handleEdit(item.id_produk)}
                   > Edit
                   </button>
-                      
+                </td>
+                <td>
                   <button
                     className="btn btn-danger btn-sm"
                     onClick={() => handleDelete(item.id_produk)}
