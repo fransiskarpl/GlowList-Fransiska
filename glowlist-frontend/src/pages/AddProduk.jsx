@@ -47,7 +47,7 @@ export default function AddProduk() {
     data.append("id_kategori", formData.id_kategori);
 
     if (file) {
-      data.append("foto", file);
+      data.append("file", file);
     }
 
     console.log("Data siap dikirim");
@@ -93,7 +93,7 @@ export default function AddProduk() {
     <div className="container mt-4">
       <h2 className="mb-3">Tambah Produk ✨</h2>
 
-      <form onSubmit={handleSubmit} className="card p-4 shadow-sm">
+      <form onSubmit={handleSubmit} encType="multipart/form-data" className="card p-4 shadow-sm">
 
         <div className="mb-3">
           <label className="form-label">Judul Produk</label>
@@ -158,7 +158,7 @@ export default function AddProduk() {
 
         <div className="mb-3">
           <label className="form-label">Foto Produk</label>
-          <input type="file" accept="image/*" className="form-control" onChange={(e) => setFile(e.target.files[0])} />
+          <input type="file" name="file" accept="image/*" className="form-control" onChange={(e) => setFile(e.target.files[0])} />
         </div>
 
         <button type="submit" className="btn btn-success">

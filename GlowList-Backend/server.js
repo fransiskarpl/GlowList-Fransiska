@@ -18,9 +18,7 @@ const storage = multer.diskStorage({
   },
 
   filename: (req, file, cb) => {
-    const uniqueSuffix =
-      Date.now() + '-' + Math.round(Math.random() * 1e9);
-
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, uniqueSuffix + '-' + file.originalname);
   },
 });
@@ -171,7 +169,7 @@ app.get("/produk/:id_produk", authJWT, (req, res) => {
     });
 });
 
-app.put("/produk/:id_produk", upload.single('file'), authJWT, (req, res) => {
+app.put("/produk/:id_produk", upload.single("file"), authJWT, (req, res) => {
     const { id_produk } = req.params;
     const { judul, deskripsi, harga, id_kategori } = req.body;
     const nama_file = req.file ? req.file.filename : null;
@@ -184,13 +182,24 @@ app.put("/produk/:id_produk", upload.single('file'), authJWT, (req, res) => {
 
     const sql = `
         UPDATE produk
-        SET judul = ?, deskripsi = ?, harga = ?, nama_file = ?, id_kategori = ?
+        SET judul = ?, 
+            deskripsi = ?, 
+            harga = ?, 
+            nama_file = ?, 
+            id_kategori = ?
         WHERE id_produk = ?
     `;
 
     db.query(
         sql,
-        [judul, deskripsi, harga, id_kategori, nama_file, id_produk],
+        [
+            judul,
+            deskripsi,
+            harga,
+            nama_file,      // ← ini sebelumnya ketukar
+            id_kategori,    // ← ini sebelumnya ketukar
+            id_produk
+        ],
         (err, result) => {
             if (err) {
                 return res.status(500).json({
