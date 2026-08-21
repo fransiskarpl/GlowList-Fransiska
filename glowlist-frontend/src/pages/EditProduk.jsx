@@ -20,9 +20,6 @@ export default function EditProduk() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
 
-    // =========================
-    // AMBIL DATA PRODUK
-    // =========================
     useEffect(() => {
         const token = localStorage.getItem("token");
 
@@ -73,9 +70,6 @@ export default function EditProduk() {
             });
     }, [id]);
 
-    // =========================
-    // HANDLE INPUT
-    // =========================
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -85,14 +79,8 @@ export default function EditProduk() {
         }));
     };
 
-    // =========================
-    // PILIH FOTO
-    // =========================
     const handleFotoOption = (gunakanLama) => {
         setGunakanFotoLama(gunakanLama);
-
-        // Kalau kembali menggunakan foto lama,
-        // hapus file baru yang sebelumnya dipilih.
         if (gunakanLama) {
             setFile(null);
         }
@@ -107,9 +95,6 @@ export default function EditProduk() {
         }
     };
 
-    // =========================
-    // SUBMIT
-    // =========================
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -154,14 +139,6 @@ export default function EditProduk() {
             data.append("harga", formData.harga);
             data.append("id_kategori", formData.id_kategori);
 
-            /*
-             * Kalau user memilih foto baru,
-             * kirim file baru.
-             *
-             * Kalau menggunakan foto lama,
-             * jangan kirim file.
-             * Backend akan mempertahankan nama_file lama.
-             */
             if (!gunakanFotoLama && file) {
                 data.append("file", file);
             }
@@ -199,9 +176,6 @@ export default function EditProduk() {
         }
     };
 
-    // =========================
-    // LOADING
-    // =========================
     if (loading) {
         return (
             <div className="container mt-4">
@@ -210,9 +184,6 @@ export default function EditProduk() {
         );
     }
 
-    // =========================
-    // ERROR
-    // =========================
     if (error) {
         return (
             <div className="container mt-4">
@@ -230,9 +201,6 @@ export default function EditProduk() {
         );
     }
 
-    // =========================
-    // FORM
-    // =========================
     return (
         <div className="container mt-4">
             <h2>Edit Produk</h2>
